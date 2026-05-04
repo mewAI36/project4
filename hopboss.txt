@@ -115,12 +115,6 @@ local function runLogic()
         if level > 1500 and sea == 2 and not hasDF then
             getgenv().BlockXero = true
 
-            if not hasRejoined then
-                hasRejoined = true
-                rejoin()
-                return
-            end
-
             setupConfig("DARKBEARD")
             runScript()
             return
