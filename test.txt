@@ -154,6 +154,7 @@ local function runScript()
     if not loadedScript then
         loadedScript = true
         getgenv().Team = "Marines"
+        getgenv().script_key = getgenv().night_key or "KEY_NIGHT"
         loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/HopScript.luau"))()
     end
 end
