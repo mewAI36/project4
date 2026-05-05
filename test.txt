@@ -1,9 +1,23 @@
 repeat task.wait() until game:IsLoaded()
 
-local player = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players")
+local player
+repeat task.wait() player = Players.LocalPlayer until player
+repeat task.wait() until player:FindFirstChild("Data")
+
+if not player.Team then
+    pcall(function()
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Remotes")
+            :WaitForChild("CommF_")
+            :InvokeServer("SetTeam", "Marines")
+    end)
+end
+
+repeat task.wait() until player.Team ~= nil
+
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 
 getgenv().BlockXero = false
@@ -19,7 +33,6 @@ local CONFIG = getgenv().CONFIG or {
 
 local loadedScript = false
 
--- SEA
 local function getSea()
     if workspace:FindFirstChild("Map") then
         if workspace.Map:FindFirstChild("Dressrosa") then
@@ -33,7 +46,6 @@ local function getSea()
     return 0
 end
 
--- ITEM
 local function hasItem(name)
     local success, result = pcall(function()
         local inv = CommF:InvokeServer("getInventory")
@@ -47,15 +59,13 @@ local function hasItem(name)
     return success and result or 0
 end
 
--- LEVEL
 local function getPlayerLevel()
     local success, lvl = pcall(function()
-        return player.Data.Level.Value
+        return player:WaitForChild("Data"):WaitForChild("Level").Value
     end)
     return success and lvl or 0
 end
 
--- DISTANCE SYSTEM
 local function Convert_CFrame(x)
     if not x then return end
     return (typeof(x) == "Vector3" and CFrame.new(x))
@@ -69,13 +79,10 @@ local function GetDistance(POS_1, POS_2)
     if not char then return 9e9 end
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if not hrp then return 9e9 end
-
     POS_2 = POS_2 or hrp
-
     local cf1 = Convert_CFrame(POS_1)
     local cf2 = Convert_CFrame(POS_2)
     if not cf1 or not cf2 then return 9e9 end
-
     return (cf1.Position - cf2.Position).Magnitude
 end
 
@@ -84,10 +91,8 @@ local function IsAlive(v)
     return hum and hum.Health > 0
 end
 
--- GET MOB PRO
 local function GetMob(NAME)
     local target, dist = nil, math.huge
-
     for _, v in pairs(workspace.Enemies:GetChildren()) do
         if v:FindFirstChild("HumanoidRootPart") and IsAlive(v) then
             if typeof(NAME) == "table" and table.find(NAME, v.Name) then
@@ -99,22 +104,19 @@ local function GetMob(NAME)
             end
         end
     end
-
     return target
 end
 
 local function CheckCursedCaptain()
     local mob = GetMob({"Cursed Captain", "Cursed Captain2"})
-    return mob ~= nil, mob
+    return mob ~= nil
 end
 
--- CDK CHECK
 local function GetCDKProcess()
     local data = CommF:InvokeServer("CDKQuest", "Progress", "Good")
     return data and data.Evil == 2 and "Hell Dimension Quest" or "None"
 end
 
--- CONFIG FILE
 local function setupConfig(mode)
     local folder = "Night Hub Hop Rewrite"
     local file = folder .. "/" .. player.Name .. "-Gay.json"
@@ -156,7 +158,6 @@ local function runScript()
     end
 end
 
--- DARK FRAGMENT (1 LẦN)
 task.spawn(function()
     if getPlayerLevel() > 1500 and getSea() == 2 and hasItem("Dark Fragment") == 0 then
         getgenv().BlockXero = true
@@ -167,23 +168,15 @@ task.spawn(function()
     end
 end)
 
--- CURSED CAPTAIN (30s)
 task.spawn(function()
     while true do
         task.wait(30)
-
         if getSea() ~= 3 then continue end
         if not CONFIG["CONFIG"]["Find Cursed Captain"] then continue end
-
         local alucard = hasItem("Alucard Fragment")
-
-        if GetCDKProcess() == "Hell Dimension Quest"
-            and alucard >= 3 and alucard < 6 then
-
-            local has = CheckCursedCaptain()
+        if GetCDKProcess() == "Hell Dimension Quest" and alucard >= 3 and alucard < 6 then
             setupConfig("CDK")
-
-            if not has then
+            if not CheckCursedCaptain() then
                 runScript()
             else
                 task.delay(300, runScript)
@@ -192,30 +185,14 @@ task.spawn(function()
     end
 end)
 
--- TUSHITA + VALK (60s)
 task.spawn(function()
     while true do
         task.wait(60)
-
         if getSea() ~= 3 then continue end
-
         if CONFIG["CONFIG"]["Find Tushita"] and hasItem("Tushita") == 0 then
             setupConfig("TUSHITA")
             runScript()
         elseif CONFIG["CONFIG"]["Find Valkyrie Helm"] and hasItem("Valkyrie Helm") == 0 then
-            setupConfig("INDRA")
-            runScript()
-        end
-    end
-end)> 0
-
-        if cfg["Find Tushita"] and not tushita then
-            setupConfig("TUSHITA")
-            runScript()
-            continue
-        end
-
-        if cfg["Find Valkyrie Helm"] and not valk then
             setupConfig("INDRA")
             runScript()
         end
