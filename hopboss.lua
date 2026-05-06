@@ -1,59 +1,127 @@
 repeat task.wait() until game:IsLoaded()
 
+-- ==========================================
+-- 1. KHAI BÁO BIẾN & SERVICES
+-- ==========================================
 local Players = game:GetService("Players")
-local player
-repeat task.wait() player = Players.LocalPlayer until player
-repeat task.wait() until player:FindFirstChild("Data")
-
-if not player.Team then
-    pcall(function()
-        game:GetService("ReplicatedStorage")
-            :WaitForChild("Remotes")
-            :WaitForChild("CommF_")
-            :InvokeServer("SetTeam", "Marines")
-    end)
-end
-
-repeat task.wait() until player.Team ~= nil
-
-getgenv().XERO_KEY = getgenv().XERO_KEY or "KEY_XERO"
-getgenv().NIGHT_KEY = getgenv().NIGHT_KEY or "KEY_NIGHT"
-
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 
-getgenv().BlockXero = false
+local player = Players.LocalPlayer
+repeat task.wait() until player:FindFirstChild("Data")
 
-local CONFIG = getgenv().CONFIG or {
-    ["CONFIG"] = {
-        ["Find Tushita"] = true,
-        ["Find Valkyrie Helm"] = true,
-        ["Find Dark Fragment"] = true,
-        ["Find Soul Reaper"] = true
-    }
-}
+-- Tự động vào Team
+if not player.Team then
+    pcall(function()
+        CommF:InvokeServer("SetTeam", "Marines")
+    end)
+end
+repeat task.wait() until player.Team ~= nil
+
+-- ==========================================
+-- 2. LOGIC CHECK BOSS NÂNG CAO (NEW)
+-- ==========================================
+local function Convert_CFrame(x)
+    if not x then return end
+    return (typeof(x) == "Vector3" and CFrame.new(x))
+        or (typeof(x) == "CFrame" and x)
+        or (typeof(x) == "Model" and x:GetPivot())
+        or (x:IsA("BasePart") and x.CFrame)
+end
+
+local function GetDistance(POS_1, POS_2, NO_Y)
+    if POS_1 == nil then return 9e9 end
+    local char = player.Character
+    if not char then return 9e9 end
+
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return 9e9 end
+
+    if POS_2 == nil then POS_2 = hrp end
+
+    local cf1 = Convert_CFrame(POS_1)
+    local cf2 = Convert_CFrame(POS_2)
+    if not cf1 or not cf2 then return 9e9 end
+
+    local p1 = Vector3.new(cf1.X, NO_Y and 0 or cf1.Y, cf1.Z)
+    local p2 = Vector3.new(cf2.X, NO_Y and 0 or cf2.Y, cf2.Z)
+    return (p1 - p2).Magnitude
+end
+
+local function IsAlive(v)
+    if not v then return false end
+    local humanoid = v:FindFirstChild("Humanoid")
+    return humanoid ~= nil and humanoid.Health > 0
+end
+
+local function GetMob(NAME, FINDMORE, DISTANCE)
+    if not NAME then return nil end
+    local selecttarget, min_dist = nil, (DISTANCE or math.huge)
+
+    local function isValid(v)
+        if not v or not v:FindFirstChild("HumanoidRootPart") then return false end
+        if not IsAlive(v) then return false end
+        
+        if typeof(NAME) == "table" then
+            return table.find(NAME, v.Name) ~= nil
+        elseif typeof(NAME) == "string" then
+            return v.Name == NAME
+        end
+        return false
+    end
+
+    local function trySelect(v)
+        local dist = GetDistance(v.HumanoidRootPart.Position)
+        if dist <= min_dist then
+            min_dist = dist
+            selecttarget = v
+        end
+    end
+
+    -- Quét trong workspace
+    if workspace:FindFirstChild("Enemies") then
+        for _, v in pairs(workspace.Enemies:GetChildren()) do
+            if isValid(v) then trySelect(v) end
+        end
+    end
+
+    -- Quét thêm trong ReplicatedStorage nếu cần (thường dùng cho các boss đang spawn)
+    if FINDMORE then
+        for _, v in pairs(ReplicatedStorage:GetChildren()) do
+            if isValid(v) then trySelect(v) end
+        end
+    end
+
+    return selecttarget
+end
+
+-- Hàm hỗ trợ thay thế logic cũ
+local function CheckSoulReaper()
+    -- Kiểm tra tất cả các tên biến thể của Soul Reaper
+    local mob = GetMob({"Soul Reaper", "Soul Reaper Boss", "SoulReaper"}, true)
+    return mob ~= nil, mob
+end
+
+-- ==========================================
+-- 3. HÀM TIỆN ÍCH HỆ THỐNG
+-- ==========================================
+getgenv().XERO_KEY = getgenv().XERO_KEY or "KEY_XERO"
+getgenv().NIGHT_KEY = getgenv().NIGHT_KEY or "KEY_NIGHT"
 
 local function getSea()
     if workspace:FindFirstChild("Map") then
-        if workspace.Map:FindFirstChild("Dressrosa") then
-            return 2
-        elseif workspace.Map:FindFirstChild("TikiOutpost") then
-            return 3
-        else
-            return 1
-        end
+        if workspace.Map:FindFirstChild("Dressrosa") then return 2 end
+        if workspace.Map:FindFirstChild("TikiOutpost") then return 3 end
     end
-    return 0
+    return 1
 end
 
 local function hasItem(name)
     local success, result = pcall(function()
         local inv = CommF:InvokeServer("getInventory")
         for _, v in pairs(inv) do
-            if v.Name == name then
-                return v.Count or 1
-            end
+            if v.Name == name then return v.Count or 1 end
         end
         return 0
     end)
@@ -62,23 +130,9 @@ end
 
 local function getPlayerLevel()
     local success, lvl = pcall(function()
-        return player:WaitForChild("Data"):WaitForChild("Level").Value
+        return player.Data.Level.Value
     end)
     return success and lvl or 0
-end
-
-local function GetMob(NAME)
-    for _, v in pairs(workspace.Enemies:GetChildren()) do
-        if v:FindFirstChild("HumanoidRootPart") then
-            if typeof(NAME) == "table" and table.find(NAME, v.Name) then
-                return v
-            end
-        end
-    end
-end
-
-local function CheckSoulReaper()
-    return GetMob({"Soul Reaper"}) ~= nil
 end
 
 local function GetCDKProcess()
@@ -86,57 +140,44 @@ local function GetCDKProcess()
     return data and data.Evil == 2 and "Hell Dimension Quest" or "None"
 end
 
+-- ==========================================
+-- 4. CONFIG & RUN SCRIPT
+-- ==========================================
 local function setupConfig(mode)
     local folder = "Night Hub Hop Rewrite"
     local file = folder .. "/" .. player.Name .. "-Gay.json"
 
     local data = {
         ["Select Tool"] = "Melee",
-        ["Auto Tushita"] = false,
-        ["Auto Tushita [HOP]"] = false,
-        ["Auto Kill Boss"] = false,
-        ["Auto Kill Boss [HOP]"] = false,
-        ["Select Boss"] = "rip_indra"
+        ["Auto Tushita"] = (mode == "TUSHITA"),
+        ["Auto Tushita [HOP]"] = (mode == "TUSHITA"),
+        ["Auto Kill Boss"] = (mode ~= "TUSHITA"),
+        ["Auto Kill Boss [HOP]"] = true,
+        ["Select Boss"] = (mode == "INDRA" and "rip_indra") or 
+                          (mode == "DARKBEARD" and "Darkbeard") or 
+                          (mode == "CDK" and "Soul Reaper") or ""
     }
 
-    if mode == "TUSHITA" then
-        data["Auto Tushita"] = true
-        data["Auto Tushita [HOP]"] = true
-    elseif mode == "INDRA" then
-        data["Auto Kill Boss"] = true
-        data["Auto Kill Boss [HOP]"] = true
-    elseif mode == "DARKBEARD" then
-        data["Auto Kill Boss"] = true
-        data["Auto Kill Boss [HOP]"] = true
-        data["Select Boss"] = "Darkbeard"
-    elseif mode == "CDK" then
-        data["Auto Kill Boss"] = true
-        data["Auto Kill Boss [HOP]"] = true
-        data["Select Boss"] = "Soul Reaper"
-    end
-
     if makefolder then makefolder(folder) end
-    if writefile then writefile(file, HttpService:JSONEncode(data)) end
+    writefile(file, HttpService:JSONEncode(data))
 end
 
 local function runScript()
     getgenv().Team = "Marines"
-
-    local env = {}
-    setmetatable(env, {
-        __index = getgenv(),
-        __newindex = getgenv()
-    })
-
+    local env = getgenv()
     env.script_key = getgenv().NIGHT_KEY
 
     local src = game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/HopScript.luau")
     local fn = loadstring(src)
-
     setfenv(fn, env)
     fn()
 end
 
+-- ==========================================
+-- 5. MAIN LOOPS (TASK MANAGER)
+-- ==========================================
+
+-- Check Darkbeard (Sea 2)
 task.spawn(function()
     if getPlayerLevel() > 1500 and getSea() == 2 and hasItem("Dark Fragment") == 0 then
         getgenv().BlockXero = true
@@ -147,48 +188,46 @@ task.spawn(function()
     end
 end)
 
+-- Check Soul Reaper (Sea 3)
 local waitingSoul = false
-
 task.spawn(function()
     while true do
         task.wait(30)
-
-        if getSea() ~= 3 then continue end
-        if not CONFIG["CONFIG"]["Find Soul Reaper"] then continue end
+        if getSea() ~= 3 or not (getgenv().CONFIG and getgenv().CONFIG["CONFIG"]["Find Soul Reaper"]) then continue end
 
         local alucard = hasItem("Alucard Fragment")
-
         if GetCDKProcess() == "Hell Dimension Quest" and alucard >= 3 and alucard < 6 then
-            if CheckSoulReaper() then
+            setupConfig("CDK")
+            
+            local soulFound, _ = CheckSoulReaper()
+            if soulFound then
                 if not waitingSoul then
                     waitingSoul = true
                     task.delay(120, function()
-                        if waitingSoul then
-                            setupConfig("CDK")
-                            runScript()
-                            waitingSoul = false
-                        end
+                        runScript()
+                        waitingSoul = false
                     end)
                 end
             else
-                waitingSoul = false
-                setupConfig("CDK")
                 runScript()
             end
         end
     end
 end)
 
+-- Check Indra & Tushita (Sea 3)
 task.spawn(function()
     while true do
         task.wait(60)
-
         if getSea() ~= 3 then continue end
+        
+        local cfg = getgenv().CONFIG and getgenv().CONFIG["CONFIG"]
+        if not cfg then continue end
 
-        if CONFIG["CONFIG"]["Find Tushita"] and hasItem("Tushita") == 0 then
+        if cfg["Find Tushita"] and hasItem("Tushita") == 0 then
             setupConfig("TUSHITA")
             runScript()
-        elseif CONFIG["CONFIG"]["Find Valkyrie Helm"] and hasItem("Valkyrie Helm") == 0 then
+        elseif cfg["Find Valkyrie Helm"] and hasItem("Valkyrie Helm") == 0 then
             setupConfig("INDRA")
             runScript()
         end
