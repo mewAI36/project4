@@ -1,12 +1,199 @@
---[[
- .____                  ________ ___.    _____                           __                
- |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
- |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
- |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
- |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
-         \/          \/         \/    \/                \/     \/     \/                   
-          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
+repeat task.wait() until game:IsLoaded()
 
-]]--
+local Players = game:GetService("Players")
+local player
+repeat task.wait() player = Players.LocalPlayer until player
+repeat task.wait() until player:FindFirstChild("Data")
 
-repeat task.wait();until game:IsLoaded() local v0=game:GetService("Players");local v1;repeat task.wait();v1=v0.LocalPlayer;until v1 repeat task.wait();until v1:FindFirstChild("Data") if  not v1.Team then pcall(function() game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam","Marines");end);end repeat task.wait();until v1.Team~=nil  getgenv().XERO_KEY=getgenv().XERO_KEY or "KEY_XERO" ;getgenv().NIGHT_KEY=getgenv().NIGHT_KEY or "KEY_NIGHT" ;local v4=game:GetService("HttpService");local v5=game:GetService("ReplicatedStorage");local v6=v5:WaitForChild("Remotes"):WaitForChild("CommF_");getgenv().BlockXero=false;local v8=getgenv().CONFIG or {CONFIG={["Find Tushita"]=true,["Find Valkyrie Helm"]=true,["Find Dark Fragment"]=true,["Find Soul Reaper"]=true}} ;local function v9() local v20=0 + 0 ;while true do if (v20==0) then if workspace:FindFirstChild("Map") then if workspace.Map:FindFirstChild("Dressrosa") then return 1387 -(1103 + 282) ;elseif workspace.Map:FindFirstChild("TikiOutpost") then return 3 + 0 ;else return 1;end end return 350 -(87 + 263) ;end end end local function v10(v21) local v22=180 -(67 + 113) ;local v23;local v24;while true do if (v22==(0 + 0)) then v23,v24=pcall(function() local v49=0 -0 ;local v50;while true do if (v49==(1 + 0)) then return 0;end if (v49==(0 -0)) then v50=v6:InvokeServer("getInventory");for v55,v56 in pairs(v50) do if (v56.Name==v21) then return v56.Count or 1 ;end end v49=953 -(802 + 150) ;end end end);return (v23 and v24) or 0 ;end end end local function v11() local v25=0;local v26;local v27;while true do if (v25==(0 -0)) then v26,v27=pcall(function() return v1:WaitForChild("Data"):WaitForChild("Level").Value;end);return (v26 and v27) or (0 -0) ;end end end local function v12(v28) for v42,v43 in pairs(workspace.Enemies:GetChildren()) do if v43:FindFirstChild("HumanoidRootPart") then if ((typeof(v28)=="table") and table.find(v28,v43.Name)) then return v43;end end end end local function v13() return v12({"Soul Reaper"})~=nil ;end local function v14() local v29=997 -(915 + 82) ;local v30;while true do if (v29==(0 -0)) then v30=v6:InvokeServer("CDKQuest","Progress","Good");return (v30 and (v30.Evil==2) and "Hell Dimension Quest") or "None" ;end end end local function v15(v31) local v32=0 + 0 ;local v33;local v34;local v35;while true do if (v32==0) then v33="Night Hub Hop Rewrite";v34=v33   .. "/"   .. v1.Name   .. "-Gay.json" ;v32=1 -0 ;end if (v32==(1189 -(1069 + 118))) then if makefolder then makefolder(v33);end if writefile then writefile(v34,v4:JSONEncode(v35));end break;end if (v32==(2 -1)) then v35={["Select Tool"]="Melee",["Auto Tushita"]=false,["Auto Tushita [HOP]"]=false,["Auto Kill Boss"]=false,["Auto Kill Boss [HOP]"]=false,["Select Boss"]="rip_indra"};if (v31=="TUSHITA") then local v51=0 -0 ;while true do if ((0 + 0)==v51) then v35["Auto Tushita"]=true;v35["Auto Tushita [HOP]"]=true;break;end end elseif (v31=="INDRA") then v35["Auto Kill Boss"]=true;v35["Auto Kill Boss [HOP]"]=true;elseif (v31=="DARKBEARD") then local v59=0 -0 ;while true do if (v59==(0 + 0)) then v35["Auto Kill Boss"]=true;v35["Auto Kill Boss [HOP]"]=true;v59=792 -(368 + 423) ;end if (v59==1) then v35["Select Boss"]="Darkbeard";break;end end elseif (v31=="CDK") then v35["Auto Kill Boss"]=true;v35["Auto Kill Boss [HOP]"]=true;v35["Select Boss"]="Soul Reaper";end v32=6 -4 ;end end end local function v16() getgenv().Team="Marines";local v37={};setmetatable(v37,{__index=getgenv(),__newindex=getgenv()});v37.script_key=getgenv().NIGHT_KEY;local v40=game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/HopScript.luau");local v41=loadstring(v40);setfenv(v41,v37);v41();end task.spawn(function() if ((v11()>(1518 -(10 + 8))) and (v9()==2) and (v10("Dark Fragment")==0)) then local v46=0;while true do if (v46==1) then v16();break;end if ((0 -0)==v46) then getgenv().BlockXero=true;v15("DARKBEARD");v46=443 -(416 + 26) ;end end else getgenv().BlockXero=false;end end);local v17=false;local v18=false;task.spawn(function() while true do task.wait(95 -65 );if (v9()~=3) then continue;end if  not v8['CONFIG']["Find Soul Reaper"] then continue;end local v44=v10("Alucard Fragment");if ((v14()=="Hell Dimension Quest") and (v44>=(2 + 1)) and (v44<(9 -3))) then local v48=0;while true do if ((439 -(145 + 293))==v48) then if v18 then if  not v17 then local v60=430 -(44 + 386) ;while true do if (v60==(1486 -(998 + 488))) then v17=true;task.delay(120,function() v16();v17=false;v18=false;end);break;end end end else v16();end break;end if (v48==(0 + 0)) then v15("CDK");if v13() then v18=true;end v48=1 + 0 ;end end end end end);task.spawn(function() while true do local v45=772 -(201 + 571) ;while true do if (v45==(1139 -(116 + 1022))) then if (v8['CONFIG']["Find Tushita"] and (v10("Tushita")==(0 -0))) then v15("TUSHITA");v16();elseif (v8['CONFIG']["Find Valkyrie Helm"] and (v10("Valkyrie Helm")==(0 + 0))) then v15("INDRA");v16();end break;end if (v45==0) then task.wait(60);if (v9()~=(10 -7)) then continue;end v45=1;end end end end);
+if not player.Team then
+    pcall(function()
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("Remotes")
+            :WaitForChild("CommF_")
+            :InvokeServer("SetTeam", "Marines")
+    end)
+end
+
+repeat task.wait() until player.Team ~= nil
+
+getgenv().XERO_KEY = getgenv().XERO_KEY or "KEY_XERO"
+getgenv().NIGHT_KEY = getgenv().NIGHT_KEY or "KEY_NIGHT"
+
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+
+getgenv().BlockXero = false
+
+local CONFIG = getgenv().CONFIG or {
+    ["CONFIG"] = {
+        ["Find Tushita"] = true,
+        ["Find Valkyrie Helm"] = true,
+        ["Find Dark Fragment"] = true,
+        ["Find Soul Reaper"] = true
+    }
+}
+
+local function getSea()
+    if workspace:FindFirstChild("Map") then
+        if workspace.Map:FindFirstChild("Dressrosa") then
+            return 2
+        elseif workspace.Map:FindFirstChild("TikiOutpost") then
+            return 3
+        else
+            return 1
+        end
+    end
+    return 0
+end
+
+local function hasItem(name)
+    local success, result = pcall(function()
+        local inv = CommF:InvokeServer("getInventory")
+        for _, v in pairs(inv) do
+            if v.Name == name then
+                return v.Count or 1
+            end
+        end
+        return 0
+    end)
+    return success and result or 0
+end
+
+local function getPlayerLevel()
+    local success, lvl = pcall(function()
+        return player:WaitForChild("Data"):WaitForChild("Level").Value
+    end)
+    return success and lvl or 0
+end
+
+local function GetMob(NAME)
+    for _, v in pairs(workspace.Enemies:GetChildren()) do
+        if v:FindFirstChild("HumanoidRootPart") then
+            if typeof(NAME) == "table" and table.find(NAME, v.Name) then
+                return v
+            end
+        end
+    end
+end
+
+local function CheckSoulReaper()
+    return GetMob({"Soul Reaper"}) ~= nil
+end
+
+local function GetCDKProcess()
+    local data = CommF:InvokeServer("CDKQuest", "Progress", "Good")
+    return data and data.Evil == 2 and "Hell Dimension Quest" or "None"
+end
+
+local function setupConfig(mode)
+    local folder = "Night Hub Hop Rewrite"
+    local file = folder .. "/" .. player.Name .. "-Gay.json"
+
+    local data = {
+        ["Select Tool"] = "Melee",
+        ["Auto Tushita"] = false,
+        ["Auto Tushita [HOP]"] = false,
+        ["Auto Kill Boss"] = false,
+        ["Auto Kill Boss [HOP]"] = false,
+        ["Select Boss"] = "rip_indra"
+    }
+
+    if mode == "TUSHITA" then
+        data["Auto Tushita"] = true
+        data["Auto Tushita [HOP]"] = true
+    elseif mode == "INDRA" then
+        data["Auto Kill Boss"] = true
+        data["Auto Kill Boss [HOP]"] = true
+    elseif mode == "DARKBEARD" then
+        data["Auto Kill Boss"] = true
+        data["Auto Kill Boss [HOP]"] = true
+        data["Select Boss"] = "Darkbeard"
+    elseif mode == "CDK" then
+        data["Auto Kill Boss"] = true
+        data["Auto Kill Boss [HOP]"] = true
+        data["Select Boss"] = "Soul Reaper"
+    end
+
+    if makefolder then makefolder(folder) end
+    if writefile then writefile(file, HttpService:JSONEncode(data)) end
+end
+
+local function runScript()
+    getgenv().Team = "Marines"
+
+    local env = {}
+    setmetatable(env, {
+        __index = getgenv(),
+        __newindex = getgenv()
+    })
+
+    env.script_key = getgenv().NIGHT_KEY
+
+    local src = game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/HopScript.luau")
+    local fn = loadstring(src)
+
+    setfenv(fn, env)
+    fn()
+end
+
+task.spawn(function()
+    if getPlayerLevel() > 1500 and getSea() == 2 and hasItem("Dark Fragment") == 0 then
+        getgenv().BlockXero = true
+        setupConfig("DARKBEARD")
+        runScript()
+    else
+        getgenv().BlockXero = false
+    end
+end)
+
+local waitingSoul = false
+
+task.spawn(function()
+    while true do
+        task.wait(30)
+
+        if getSea() ~= 3 then continue end
+        if not CONFIG["CONFIG"]["Find Soul Reaper"] then continue end
+
+        local alucard = hasItem("Alucard Fragment")
+
+        if GetCDKProcess() == "Hell Dimension Quest" and alucard >= 3 and alucard < 6 then
+            setupConfig("CDK")
+
+            if CheckSoulReaper() then
+                if not waitingSoul then
+                    waitingSoul = true
+
+                    task.delay(120, function()
+                        runScript()
+                        waitingSoul = false
+                    end)
+                end
+            else
+                runScript()
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(60)
+
+        if getSea() ~= 3 then continue end
+
+        if CONFIG["CONFIG"]["Find Tushita"] and hasItem("Tushita") == 0 then
+            setupConfig("TUSHITA")
+            runScript()
+        elseif CONFIG["CONFIG"]["Find Valkyrie Helm"] and hasItem("Valkyrie Helm") == 0 then
+            setupConfig("INDRA")
+            runScript()
+        end
+    end
+end)ONFIG["CONFIG"]["Find Valkyrie Helm"] and hasItem("Valkyrie Helm") == 0 then
+            setupConfig("INDRA")
+            runScript()
+        end
+    end
+end)
