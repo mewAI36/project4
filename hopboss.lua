@@ -159,18 +159,20 @@ task.spawn(function()
         local alucard = hasItem("Alucard Fragment")
 
         if GetCDKProcess() == "Hell Dimension Quest" and alucard >= 3 and alucard < 6 then
-            setupConfig("CDK")
-
             if CheckSoulReaper() then
                 if not waitingSoul then
                     waitingSoul = true
-
                     task.delay(120, function()
-                        runScript()
-                        waitingSoul = false
+                        if waitingSoul then
+                            setupConfig("CDK")
+                            runScript()
+                            waitingSoul = false
+                        end
                     end)
                 end
             else
+                waitingSoul = false
+                setupConfig("CDK")
                 runScript()
             end
         end
@@ -187,11 +189,6 @@ task.spawn(function()
             setupConfig("TUSHITA")
             runScript()
         elseif CONFIG["CONFIG"]["Find Valkyrie Helm"] and hasItem("Valkyrie Helm") == 0 then
-            setupConfig("INDRA")
-            runScript()
-        end
-    end
-end)ONFIG["CONFIG"]["Find Valkyrie Helm"] and hasItem("Valkyrie Helm") == 0 then
             setupConfig("INDRA")
             runScript()
         end
