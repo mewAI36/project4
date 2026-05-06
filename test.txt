@@ -34,8 +34,6 @@ local CONFIG = getgenv().CONFIG or {
     }
 }
 
-local loadedScript = false
-
 local function getSea()
     if workspace:FindFirstChild("Map") then
         if workspace.Map:FindFirstChild("Dressrosa") then
@@ -70,15 +68,13 @@ local function getPlayerLevel()
 end
 
 local function GetMob(NAME)
-    local target = nil
     for _, v in pairs(workspace.Enemies:GetChildren()) do
         if v:FindFirstChild("HumanoidRootPart") then
             if typeof(NAME) == "table" and table.find(NAME, v.Name) then
-                target = v
+                return v
             end
         end
     end
-    return target
 end
 
 local function CheckSoulReaper()
@@ -124,24 +120,21 @@ local function setupConfig(mode)
 end
 
 local function runScript()
-    if not loadedScript then
-        loadedScript = true
-        getgenv().Team = "Marines"
+    getgenv().Team = "Marines"
 
-        local env = {}
-        setmetatable(env, {
-            __index = getgenv(),
-            __newindex = getgenv()
-        })
+    local env = {}
+    setmetatable(env, {
+        __index = getgenv(),
+        __newindex = getgenv()
+    })
 
-        env.script_key = getgenv().NIGHT_KEY
+    env.script_key = getgenv().NIGHT_KEY
 
-        local src = game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/HopScript.luau")
-        local fn = loadstring(src)
+    local src = game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/HopScript.luau")
+    local fn = loadstring(src)
 
-        setfenv(fn, env)
-        fn()
-    end
+    setfenv(fn, env)
+    fn()
 end
 
 task.spawn(function()
@@ -154,9 +147,12 @@ task.spawn(function()
     end
 end)
 
+local waitingSoul = false
+
 task.spawn(function()
     while true do
         task.wait(30)
+
         if getSea() ~= 3 then continue end
         if not CONFIG["CONFIG"]["Find Soul Reaper"] then continue end
 
@@ -165,10 +161,13 @@ task.spawn(function()
         if GetCDKProcess() == "Hell Dimension Quest" and alucard >= 3 and alucard < 6 then
             setupConfig("CDK")
 
-            if not CheckSoulReaper() then
-                runScript()
-            else
-                task.delay(120, runScript)
+            if not waitingSoul then
+                waitingSoul = true
+
+                task.delay(120, function()
+                    runScript()
+                    waitingSoul = false
+                end)
             end
         end
     end
@@ -177,6 +176,7 @@ end)
 task.spawn(function()
     while true do
         task.wait(60)
+
         if getSea() ~= 3 then continue end
 
         if CONFIG["CONFIG"]["Find Tushita"] and hasItem("Tushita") == 0 then
